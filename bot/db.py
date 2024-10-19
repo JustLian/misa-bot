@@ -1,0 +1,21 @@
+import motor.motor_asyncio
+import bot
+import os
+
+
+client = None
+_host = bot.settings["mongo"]["host"]
+_port = bot.settings["mongo"]["port"]
+_username = bot.settings["mongo"]["username"]
+_password = bot.settings["mongo"]["password"]
+
+
+def connect():
+    global client
+    if not client:
+        client = motor.motor_asyncio.AsyncIOMotorClient(
+            "mongodb://{}:{}@{}:{}/?authMechanism=DEFAULT".format(
+                _username, _password, _host, _port
+            )
+        )
+    return client
