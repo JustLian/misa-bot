@@ -1,4 +1,3 @@
-import json
 from hikari import Color
 import os
 import dotenv

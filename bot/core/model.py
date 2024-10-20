@@ -1,5 +1,4 @@
 import hikari
-import json
 from bot.db import connect
 import bot
 import miru

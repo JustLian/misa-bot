@@ -1,6 +1,5 @@
 import motor.motor_asyncio
 import bot
-import os
 
 
 client = None
