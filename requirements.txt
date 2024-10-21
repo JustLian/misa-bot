@@ -4,3 +4,4 @@ hikari-miru
 python-dotenv
 motor
 lavalink_rs
+hikari-toolbox
