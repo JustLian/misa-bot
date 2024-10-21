@@ -260,7 +260,7 @@ class Play:
 
                 await ctx.respond(embed=bot.Embed(
                     title="Добавила!",
-                    description=f"Добавила в плейлист: `{loaded_tracks.info.name}`",
+                    description=f"Добавила плейлист: `{loaded_tracks.info.name}`",
                     color=bot.Colors.SUCCESS
                 ))
 
