@@ -32,7 +32,7 @@ class InputValue(miru.Modal):
         )
 
         await ctx.respond(
-            embed=hikari.Embed(
+            embed=bot.Embed(
                 title="Сохранено!",
                 description=f"Установлено значение `{self.value.value}`",
                 color=bot.Colors.SUCCESS,
@@ -76,7 +76,7 @@ class EditProperty(miru.View):
         self.stop()
 
         await ctx.respond(
-            embed=hikari.Embed(
+            embed=bot.Embed(
                 title="Сохранено!",
                 description=f"Установлен канал {self.channel_select.values[0].mention}",
                 color=bot.Colors.SUCCESS,
@@ -105,7 +105,7 @@ class EditProperty(miru.View):
         self.stop()
 
         await ctx.respond(
-            embed=hikari.Embed(title="Сохранено!", color=bot.Colors.SUCCESS),
+            embed=bot.Embed(title="Сохранено!", color=bot.Colors.SUCCESS),
             flags=hikari.MessageFlag.EPHEMERAL,
         )
 
@@ -141,6 +141,7 @@ async def ac_option(
 
 
 @plugin.include
+@bot.groups.admin.child
 @crescent.command(name="config", description="Настройки бота")
 class Settings:
     category = crescent.option(
@@ -152,14 +153,14 @@ class Settings:
         await ctx.defer(ephemeral=True)
 
         if self.category not in SETTINGS:
-            await ctx.respond(embed=hikari.Embed(
+            await ctx.respond(embed=bot.Embed(
                 title="Такой категории нет",
                 color=bot.Colors.ERROR
             ), ephemeral=True)
             return
         
         if self.setting not in SETTINGS[self.category]:
-            await ctx.respond(embed=hikari.Embed(
+            await ctx.respond(embed=bot.Embed(
                 title="Такой настройки нет",
                 color=bot.Colors.ERROR
             ), ephemeral=True)
@@ -168,7 +169,7 @@ class Settings:
         doc = await plugin.model.db.guilds.find_one({"_id": ctx.guild_id})
         
         view = EditProperty(self.category, self.setting)
-        msg = await ctx.respond(embed=hikari.Embed(
+        msg = await ctx.respond(embed=bot.Embed(
             title="Настройки",
             color=bot.Colors.WAIT
         ).add_field(

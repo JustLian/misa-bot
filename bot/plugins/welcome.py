@@ -14,7 +14,7 @@ async def join(e: hikari.MemberCreateEvent):
     if doc["settings"]["welcome"]["channel"] == None:
         return
 
-    embed = hikari.Embed(
+    embed = bot.Embed(
         title=doc["settings"]["welcome"]["title"],
         description=doc["settings"]["welcome"]["description"].replace(
             "[user.mention]", e.member.mention
@@ -41,7 +41,7 @@ async def leave(e: hikari.MemberDeleteEvent):
     if doc["settings"]["farewell"]["channel"] == None:
         return
 
-    embed = hikari.Embed(
+    embed = bot.Embed(
         title=doc["settings"]["farewell"]["title"],
         description=doc["settings"]["farewell"]["description"].replace(
             "[user.mention]", e.member.mention

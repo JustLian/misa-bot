@@ -2,6 +2,7 @@ import hikari
 import crescent
 import miru
 import bot
+import lavalink_rs
 
 
 # async def hook(ctx: crescent.Context) -> crescent.HookResult:
