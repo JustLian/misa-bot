@@ -71,6 +71,8 @@ class Join:
 
     async def callback(self, ctx: crescent.Context) -> None:
         """Joins the voice channel you are in"""
+        await ctx.defer()
+        
         channel_id = await _join(ctx)
 
         if channel_id:
@@ -93,6 +95,7 @@ class Join:
     name="leave"
 )
 async def leave(ctx: crescent.Context) -> None:
+
     """Leaves the voice channel"""
     if not ctx.guild_id:
         return None
@@ -130,158 +133,187 @@ class Play:
             return None
         
         await ctx.defer()
+
+        await play_cb(ctx, self.query, ctx.user)
+
+
+@plugin.include
+@crescent.event
+async def reply_to_play(event: hikari.GuildMessageCreateEvent) -> None:
+    
+    if event.author.is_bot or event.author.is_system:
+        return
+    
+    if not event.message.referenced_message:
+        return
+    
+    if event.message.referenced_message.author.id != plugin.app.get_me().id:
+        return
+    
+    await play_cb(event.message, event.message.content, event.message.author)
+
+
+async def play_cb(ctx: crescent.Context, query: str, user) -> None:
+    voice = plugin.app.voice.connections.get(ctx.guild_id)
+    has_joined = False
+
+    if not voice:
+        if not hasattr(ctx, "options"):
+            await ctx.respond(embed=bot.Embed(
+                title="Где я..",
+                description="Сначала добавь меня в голосовой канал!",
+                color=bot.Colors.ERROR
+            ))
+            return
+
+        if not await _join(ctx):
+            await ctx.respond(embed=bot.Embed(
+                title="А куда?",
+                description="Сначала зайди в голосовой канал!",
+                color=bot.Colors.ERROR
+            ))
+            return None
         voice = plugin.app.voice.connections.get(ctx.guild_id)
-        has_joined = False
+        has_joined = True
 
-        if not voice:
-            if not await _join(ctx):
-                await ctx.respond(embed=bot.Embed(
-                    title="А куда?",
-                    description="Сначала зайди в голосовой канал!",
-                    color=bot.Colors.ERROR
-                ))
-                return None
-            voice = plugin.app.voice.connections.get(ctx.guild_id)
-            has_joined = True
+    assert isinstance(voice, LavalinkVoice)
 
-        assert isinstance(voice, LavalinkVoice)
+    player_ctx = voice.player
+    query = query.replace(">", "").replace("<", "")
 
-        player_ctx = voice.player
-        query = self.query.replace(">", "").replace("<", "")
-
-        if not query:
-            player = await player_ctx.get_player()
-            queue = player_ctx.get_queue()
-
-            if not player.track and await queue.get_count() > 0:
-                player_ctx.skip()
-            else:
-                if player.track:
-                    await ctx.respond(embed=bot.Embed(
-                        title="Ой-ой",
-                        description="Какой-то трек уже играет!",
-                        color=bot.Colors.ERROR
-                    ))
-                else:
-                    await ctx.respond(embed=bot.Embed(
-                        title="Ничего нет!",
-                        description="Моя очередь пуста :<",
-                        color=bot.Colors.ERROR
-                    ))
-
-            return None
-
-        if not query.startswith("http"):
-            query = SearchEngines.spotify(query)
-
-        try:
-            tracks = await plugin.model.lavalink.load_tracks(ctx.guild_id, query)
-            loaded_tracks = tracks.data
-
-        except Exception as e:
-            logging.error(e)
-            await ctx.respond(embed=bot.Embed(
-                title="Ошибка",
-                description="Пишите `@jxstrian` :>",
-                color=bot.Colors.ERROR
-            ))
-            return None
-
-        if tracks.load_type == TrackLoadType.Track:
-            assert isinstance(loaded_tracks, TrackData)
-
-            loaded_tracks.user_data = {"requester_id": int(ctx.user.id)}
-
-            player_ctx.queue(loaded_tracks)
-
-            if loaded_tracks.info.uri:
-                await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"В очереди трек: [`{loaded_tracks.info.author} - {loaded_tracks.info.title}`](<{loaded_tracks.info.uri}>)",
-                    color=bot.Colors.SUCCESS
-                ))
-            else:
-                await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"`В очереди трек: {loaded_tracks.info.author} - {loaded_tracks.info.title}`",
-                    color=bot.Colors.SUCCESS
-                ))
-
-        elif tracks.load_type == TrackLoadType.Search:
-            assert isinstance(loaded_tracks, list)
-
-            loaded_tracks[0].user_data = {"requester_id": int(ctx.user.id)}
-
-            player_ctx.queue(loaded_tracks[0])
-
-            if loaded_tracks[0].info.uri:
-                await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"В очереди трек: [`{loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`](<{loaded_tracks[0].info.uri}>)",
-                    color=bot.Colors.SUCCESS
-                ))
-            else:
-                await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"`В очереди трек: {loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`",
-                    color=bot.Colors.SUCCESS
-                ))
-
-        elif tracks.load_type == TrackLoadType.Playlist:
-            assert isinstance(loaded_tracks, PlaylistData)
-
-            if loaded_tracks.info.selected_track:
-                track = loaded_tracks.tracks[loaded_tracks.info.selected_track]
-
-                track.user_data = {"requester_id": int(ctx.user.id)}
-
-                player_ctx.queue(track)
-
-                if track.info.uri:
-                    await ctx.respond(embed=bot.Embed(
-                        title="Добавила!",
-                        description=f"В очереди трек: [`{track.info.author} - {track.info.title}`](<{track.info.uri}>)",
-                        color=bot.Colors.SUCCESS
-                    ))
-                else:
-                    await ctx.respond(embed=bot.Embed(
-                        title="Добавила!",
-                        description=f"`В очереди трек: {track.info.author} - {track.info.title}`",
-                        color=bot.Colors.SUCCESS
-                    ))
-            else:
-                tracks = loaded_tracks.tracks
-
-                for i in tracks:
-                    i.user_data = {"requester_id": int(ctx.user.id)}
-
-                queue = player_ctx.get_queue()
-                queue.append(tracks)
-
-                await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"Добавила плейлист: `{loaded_tracks.info.name}`",
-                    color=bot.Colors.SUCCESS
-                ))
-
-        # Error or no search results
-        else:
-            await ctx.respond(embed=bot.Embed(
-                title="Ничего нет!",
-                description="Я не нашла ничего по твоему запросу :<",
-                color=bot.Colors.ERROR
-            ))
-            return None
-
-        if has_joined:
-            return None
-
-        player_data = await player_ctx.get_player()
+    if not query:
+        player = await player_ctx.get_player()
         queue = player_ctx.get_queue()
 
-        if player_data:
-            if not player_data.track and await queue.get_track(0):
-                player_ctx.skip()
+        if not player.track and await queue.get_count() > 0:
+            player_ctx.skip()
+        else:
+            if player.track:
+                await ctx.respond(embed=bot.Embed(
+                    title="Ой-ой",
+                    description="Какой-то трек уже играет!",
+                    color=bot.Colors.ERROR
+                ))
+            else:
+                await ctx.respond(embed=bot.Embed(
+                    title="Ничего нет!",
+                    description="Моя очередь пуста :<",
+                    color=bot.Colors.ERROR
+                ))
+
+        return None
+
+    if not query.startswith("http"):
+        query = SearchEngines.spotify(query)
+
+    try:
+        tracks = await plugin.model.lavalink.load_tracks(ctx.guild_id, query)
+        loaded_tracks = tracks.data
+
+    except Exception as e:
+        logging.error(e)
+        await ctx.respond(embed=bot.Embed(
+            title="Ошибка",
+            description="Пишите `@jxstrian` :>",
+            color=bot.Colors.ERROR
+        ))
+        return None
+
+    if tracks.load_type == TrackLoadType.Track:
+        assert isinstance(loaded_tracks, TrackData)
+
+        loaded_tracks.user_data = {"requester_id": int(user.id)}
+
+        player_ctx.queue(loaded_tracks)
+
+        if loaded_tracks.info.uri:
+            await ctx.respond(embed=bot.Embed(
+                title="Добавила!",
+                description=f"В очереди трек: [`{loaded_tracks.info.author} - {loaded_tracks.info.title}`](<{loaded_tracks.info.uri}>)",
+                color=bot.Colors.SUCCESS
+            ))
+        else:
+            await ctx.respond(embed=bot.Embed(
+                title="Добавила!",
+                description=f"`В очереди трек: {loaded_tracks.info.author} - {loaded_tracks.info.title}`",
+                color=bot.Colors.SUCCESS
+            ))
+
+    elif tracks.load_type == TrackLoadType.Search:
+        assert isinstance(loaded_tracks, list)
+
+        loaded_tracks[0].user_data = {"requester_id": int(user.id)}
+
+        player_ctx.queue(loaded_tracks[0])
+
+        if loaded_tracks[0].info.uri:
+            await ctx.respond(embed=bot.Embed(
+                title="Добавила!",
+                description=f"В очереди трек: [`{loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`](<{loaded_tracks[0].info.uri}>)",
+                color=bot.Colors.SUCCESS
+            ))
+        else:
+            await ctx.respond(embed=bot.Embed(
+                title="Добавила!",
+                description=f"`В очереди трек: {loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`",
+                color=bot.Colors.SUCCESS
+            ))
+
+    elif tracks.load_type == TrackLoadType.Playlist:
+        assert isinstance(loaded_tracks, PlaylistData)
+
+        if loaded_tracks.info.selected_track:
+            track = loaded_tracks.tracks[loaded_tracks.info.selected_track]
+
+            track.user_data = {"requester_id": int(user.id)}
+
+            player_ctx.queue(track)
+
+            if track.info.uri:
+                await ctx.respond(embed=bot.Embed(
+                    title="Добавила!",
+                    description=f"В очереди трек: [`{track.info.author} - {track.info.title}`](<{track.info.uri}>)",
+                    color=bot.Colors.SUCCESS
+                ))
+            else:
+                await ctx.respond(embed=bot.Embed(
+                    title="Добавила!",
+                    description=f"`В очереди трек: {track.info.author} - {track.info.title}`",
+                    color=bot.Colors.SUCCESS
+                ))
+        else:
+            tracks = loaded_tracks.tracks
+
+            for i in tracks:
+                i.user_data = {"requester_id": int(user.id)}
+
+            queue = player_ctx.get_queue()
+            queue.append(tracks)
+
+            await ctx.respond(embed=bot.Embed(
+                title="Добавила!",
+                description=f"Добавила плейлист: `{loaded_tracks.info.name}`",
+                color=bot.Colors.SUCCESS
+            ))
+
+    # Error or no search results
+    else:
+        await ctx.respond(embed=bot.Embed(
+            title="Ничего нет!",
+            description="Я не нашла ничего по твоему запросу :<",
+            color=bot.Colors.ERROR
+        ))
+        return None
+
+    if has_joined:
+        return None
+
+    player_data = await player_ctx.get_player()
+    queue = player_ctx.get_queue()
+
+    if player_data:
+        if not player_data.track and await queue.get_track(0):
+            player_ctx.skip()
 
 
 @plugin.include

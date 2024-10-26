@@ -27,9 +27,11 @@ client = crescent.Client(
     gw_bot,
     model=model,
     # command_hooks=[hook],
-    tracked_guilds=[bot.settings["guild"]] if bot.settings["guild"] else None,
+    tracked_guilds=[int(bot.settings["guild"])] if bot.settings["guild"] != "None" else None,
 )
 miru_client = miru.Client(gw_bot)
+
+
 
 model.miru = miru_client
 

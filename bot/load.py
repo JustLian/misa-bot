@@ -23,8 +23,11 @@ class Embed(_Embed):
         super().__init__(
             title=title, description=description, url=url, color=color, timestamp=timestamp
         )
-        if random.randint(0, 3) == 1:
+        ms = random.randint(0, 5)
+        if ms in (1, 2):
             self.set_footer("made w/ ❤️ by @jxstrian", icon="https://files.catbox.moe/54mi8w.jpg")
+        if ms == 3:
+            self.set_footer("Ответь боту запросом, чтобы добавить в очередь!")
 
 
 settings = {
