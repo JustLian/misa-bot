@@ -9,8 +9,11 @@ import crescent
 import lavalink_rs
 from lavalink_rs.model import events # type: ignore
 
+from logging import getLogger
+
 
 plugin = crescent.Plugin[hikari.GatewayBot, bot.Model]()
+log = getLogger("plugin-lavalink")
 # TODO: Make commands guild-only
 
 
@@ -75,6 +78,8 @@ class Events(lavalink_rs.EventHandler):
 async def start_lavalink(event: hikari.ShardReadyEvent) -> None:
     """Event that triggers when the hikari gateway is ready."""
 
+    log.info("Creating Lavalink client")
+
     node = lavalink_rs.NodeBuilder(
         os.environ["lavalink.host"],
         os.environ["lavalink.ssl"] == "True",
@@ -88,5 +93,7 @@ async def start_lavalink(event: hikari.ShardReadyEvent) -> None:
         lavalink_rs.NodeDistributionStrategy.sharded(),
         # lavalink_rs.NodeDistributionStrategy.custom(custom_node),
     )
+
+    log.info("Lavalink client created")
 
     plugin.model.lavalink = lavalink_client
