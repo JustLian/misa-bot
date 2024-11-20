@@ -48,6 +48,8 @@ async def user_left_vc(event: hikari.VoiceStateUpdateEvent) -> None:
         return
     
     voice = plugin.app.voice.connections.get(event.guild_id)
+    if not voice:
+        return
     
     if (
         event.old_state.channel_id is not None
