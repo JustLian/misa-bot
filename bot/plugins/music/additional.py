@@ -274,3 +274,32 @@ async def shuffle(ctx: crescent.Context) -> None:
         title="Перемешала!",
         color=bot.Colors.SUCCESS
     ))
+
+
+@plugin.include
+@bot.groups.music.child
+@crescent.command(name='volume')
+class Volume:
+    volume = crescent.option(int, min_value=1, max_value=200)
+
+    async def callback(self, ctx: crescent.Context) -> None:
+        if not ctx.guild_id:
+            return None
+
+        voice = plugin.app.voice.connections.get(ctx.guild_id)
+
+        if not voice:
+            await ctx.respond(bot.Embed(
+                title="Я не в войсе!",
+                color=bot.Colors.ERROR
+            ))
+            return None
+
+        assert isinstance(voice, LavalinkVoice)
+
+        voice.player.set_volume(self.volume)
+    
+        await ctx.respond(bot.Embed(
+            title=f"Теперь звук на {self.volume}%!",
+            color=bot.Colors.SUCCESS
+        ))

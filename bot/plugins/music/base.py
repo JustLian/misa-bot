@@ -66,18 +66,10 @@ class Events(lavalink_rs.EventHandler):
             )
 
 
-# async def custom_node(
-#    client: lavalink_rs.LavalinkClient, guild_id: lavalink_rs.GuildId | int
-# ) -> lavalink_rs.Node:
-#    node = client.get_node_by_index(0)
-#    assert node
-#    return node
-
 @plugin.include
 @crescent.event
 async def start_lavalink(event: hikari.ShardReadyEvent) -> None:
     """Event that triggers when the hikari gateway is ready."""
-
     log.info("Creating Lavalink client")
 
     node = lavalink_rs.NodeBuilder(
