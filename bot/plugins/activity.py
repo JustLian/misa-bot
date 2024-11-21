@@ -3,6 +3,7 @@ import hikari
 import crescent
 from crescent.ext import tasks
 import bot
+from bot import listing_stats as ls
 
 
 plugin = crescent.Plugin[hikari.GatewayBot, bot.Model]()
@@ -30,3 +31,5 @@ async def activity_update():
         status=hikari.Status.IDLE,
         activity=hikari.Activity(name=text, type=hikari.ActivityType.WATCHING)
     )
+
+    await ls.sdc(server_count, plugin.app.shard_count, plugin.app.get_me().id)

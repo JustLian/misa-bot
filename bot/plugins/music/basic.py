@@ -154,6 +154,15 @@ async def reply_to_play(event: hikari.GuildMessageCreateEvent) -> None:
 
 
 async def play_cb(ctx: crescent.Context, query: str, user) -> None:
+
+    if not query:
+        await ctx.respond(embed=bot.Embed(
+            title="Что играть?",
+            description="Параметр query пустой",
+            color=bot.Colors.ERROR
+        ))
+        return
+
     voice = plugin.app.voice.connections.get(ctx.guild_id)
     has_joined = False
 
