@@ -2,6 +2,7 @@ import hikari
 import crescent
 import miru
 import bot
+from bot.plugins.handlers.errors import global_error_handler
 import lavalink_rs
 
 
@@ -29,6 +30,7 @@ client = crescent.Client(
     # command_hooks=[hook],
     tracked_guilds=[int(bot.settings["guild"])] if bot.settings["guild"] != "None" else None,
 )
+client.on_crescent_command_error = global_error_handler
 miru_client = miru.Client(gw_bot)
 
 
@@ -65,8 +67,6 @@ async def add_guild(e: hikari.GuildJoinEvent):
             },
         }
         await model.db.guilds.insert_one(doc)
-
-    return crescent.HookResult()
 
 
 def run():

@@ -48,4 +48,3 @@ class Colors:
     WAIT = Color.from_hex_code("fde2ff")
     WARNING = Color.from_hex_code("d7bce8")
     SUCCESS = Color.from_hex_code("f570a5")
-    MODEL_PREVIEW = Color.from_hex_code("db74ca")
