@@ -5,3 +5,5 @@ python-dotenv
 motor
 lavalink_rs
 hikari-toolbox
+pyi18n-v2
+cachetools

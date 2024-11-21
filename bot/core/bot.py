@@ -61,7 +61,7 @@ async def add_guild(e: hikari.GuildJoinEvent):
                     "image": None,
                     "thumbnail": None,
                     "channel": None,
-                },
+                }
             },
         }
         await model.db.guilds.insert_one(doc)

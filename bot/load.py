@@ -5,10 +5,11 @@ import dotenv
 import typing
 import random
 import datetime
+from bot.plugins.localize import _
 
 
 dotenv.load_dotenv()
-__all__ = ("settings", "Colors", "Embed")
+__all__ = ("settings", "Colors", "Embed", "_")
 
 
 class Embed(_Embed):

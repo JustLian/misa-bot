@@ -1,5 +1,4 @@
 import crescent.context
-import bot
 from bot.lavalink_voice import LavalinkVoice
 
 import logging
@@ -9,6 +8,9 @@ import hikari
 import crescent
 from lavalink_rs.model.search import SearchEngines # type: ignore
 from lavalink_rs.model.track import TrackData, PlaylistData, TrackLoadType # type: ignore
+
+import bot
+_ = bot._
 
 plugin = crescent.Plugin[hikari.GatewayBot, bot.Model]()
 # TODO: GUILD ONLY
@@ -77,14 +79,14 @@ class Join:
 
         if channel_id:
             await ctx.respond(embed=bot.Embed(
-                title="Зашла!",
-                description=f"Присоединилась к каналу <#{channel_id}>",
+                title=await _("music.joined.title"),
+                description=await _("music.joined.descr", params={"channel_id": channel_id}),
                 color=bot.Colors.SUCCESS
             ))
         else:
             await ctx.respond(embed=bot.Embed(
-                title="Какой канал?",
-                description="Чтобы я зашла в канал, зайди в него, либо укажи в аргументах команды",
+                title=await _("music.joined.channel_err.title"),
+                description=await _("music.joined.channel_err.descr"),
                 color=bot.Colors.ERROR
             ))
 
@@ -104,7 +106,7 @@ async def leave(ctx: crescent.Context) -> None:
 
     if not voice:
         await ctx.respond(bot.Embed(
-            title="Я не в войсе!",
+            title=await _("music.generic.not_in_vc"),
             color=bot.Colors.ERROR
         ))
         return None
@@ -112,7 +114,7 @@ async def leave(ctx: crescent.Context) -> None:
     await voice.disconnect()
 
     await ctx.respond(embed=bot.Embed(
-        title="Вышла",
+        title=await _("music.left.title"),
         color=bot.Colors.ERROR
     ))
 
@@ -157,8 +159,8 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
 
     if not query:
         await ctx.respond(embed=bot.Embed(
-            title="Что играть?",
-            description="Параметр query пустой",
+            title=await _("music.play.no_query.title"),
+            description=await _("music.play.no_query.descr"),
             color=bot.Colors.ERROR
         ))
         return
@@ -169,16 +171,16 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
     if not voice:
         if not hasattr(ctx, "options"):
             await ctx.respond(embed=bot.Embed(
-                title="Где я..",
-                description="Сначала добавь меня в голосовой канал!",
+                title=await _("music.play.no_channel.title"),
+                description=await _("music.play.no_query.decr"),
                 color=bot.Colors.ERROR
             ))
             return
 
         if not await _join(ctx):
             await ctx.respond(embed=bot.Embed(
-                title="А куда?",
-                description="Сначала зайди в голосовой канал!",
+                title=await _("music.play.no_user_channel.title"),
+                description=await _("music.play.no_user_channel.descr"),
                 color=bot.Colors.ERROR
             ))
             return None
@@ -199,14 +201,14 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
         else:
             if player.track:
                 await ctx.respond(embed=bot.Embed(
-                    title="Ой-ой",
-                    description="Какой-то трек уже играет!",
+                    title=await _("generic.oops"),
+                    description=await _("music.play.already_playing"),
                     color=bot.Colors.ERROR
                 ))
             else:
                 await ctx.respond(embed=bot.Embed(
-                    title="Ничего нет!",
-                    description="Моя очередь пуста :<",
+                    title=await _("music.play.queue_empty.title"),
+                    description=await _("music.play.queue_empty.descr"),
                     color=bot.Colors.ERROR
                 ))
 
@@ -222,8 +224,8 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
     except Exception as e:
         logging.error(e)
         await ctx.respond(embed=bot.Embed(
-            title="Ошибка",
-            description="Пишите `@jxstrian` :>",
+            title=await _("generic.error.title"),
+            description=await _("generic.error.descr"),
             color=bot.Colors.ERROR
         ))
         return None
@@ -237,7 +239,7 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
 
         if loaded_tracks.info.uri:
             await ctx.respond(embed=bot.Embed(
-                title="Добавила!",
+                title=await _("music.play.success.title"),
                 description=f"В очереди трек: [`{loaded_tracks.info.author} - {loaded_tracks.info.title}`](<{loaded_tracks.info.uri}>)",
                 color=bot.Colors.SUCCESS
             ))
@@ -257,14 +259,14 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
 
         if loaded_tracks[0].info.uri:
             await ctx.respond(embed=bot.Embed(
-                title="Добавила!",
-                description=f"В очереди трек: [`{loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`](<{loaded_tracks[0].info.uri}>)",
+                title=await _("music.play.success.title"),
+                description=await _("music.play.success.track.uri", params={"author": loaded_tracks[0].info.author, "title": loaded_tracks[0].info.title, "uri": loaded_tracks[0].info.uri}),
                 color=bot.Colors.SUCCESS
             ))
         else:
             await ctx.respond(embed=bot.Embed(
-                title="Добавила!",
-                description=f"`В очереди трек: {loaded_tracks[0].info.author} - {loaded_tracks[0].info.title}`",
+                title=await _("music.play.success.title"),
+                description=await _("music.play.success.track.no_uri", params={"author": loaded_tracks[0].info.author, "title": loaded_tracks[0].info.title}),
                 color=bot.Colors.SUCCESS
             ))
 
@@ -280,14 +282,14 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
 
             if track.info.uri:
                 await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"В очереди трек: [`{track.info.author} - {track.info.title}`](<{track.info.uri}>)",
+                    title=await _("music.play.success.title"),
+                    description=await _("music.play.success.track.uri", params={"author": track.info.author, "title": track.info.title, "uri": track.info.uri}),
                     color=bot.Colors.SUCCESS
                 ))
             else:
                 await ctx.respond(embed=bot.Embed(
-                    title="Добавила!",
-                    description=f"`В очереди трек: {track.info.author} - {track.info.title}`",
+                    title=await _("music.play.success.title"),
+                    description=await _("music.play.success.track.no_uri", params={"author": track.info.author, "title": track.info.title}),
                     color=bot.Colors.SUCCESS
                 ))
         else:
@@ -300,16 +302,16 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
             queue.append(tracks)
 
             await ctx.respond(embed=bot.Embed(
-                title="Добавила!",
-                description=f"Добавила плейлист: `{loaded_tracks.info.name}`",
+                title=await _("music.play.success.title"),
+                description=await _("music.play.success.playlist", params={"name": loaded_tracks.info.name}),
                 color=bot.Colors.SUCCESS
             ))
 
     # Error or no search results
     else:
         await ctx.respond(embed=bot.Embed(
-            title="Ничего нет!",
-            description="Я не нашла ничего по твоему запросу :<",
+            title=await _("music.play.results.title"),
+            description=await _("music.play.results.descr"),
             color=bot.Colors.ERROR
         ))
         return None
@@ -337,7 +339,7 @@ async def skip(ctx: crescent.Context) -> None:
 
     if not voice:
         await ctx.respond(bot.Embed(
-            title="Я не в войсе!",
+            title=await _("music.generic.not_in_vc"),
             color=bot.Colors.ERROR
         ))
         return None

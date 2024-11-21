@@ -1,0 +1,45 @@
+joined:
+  title: Зашла!
+  descr: Присоединилась к каналу <#{channel_id}>
+
+  channel_err:
+    title: Какой канал?
+    desc: Чтобы я зашла в канал, зайди в него, либо укажи в аргументах команды
+
+left:
+  title: Вышла
+
+generic:
+  not_in_vc: Я не в войсе!
+
+play:
+  no_query:
+    title: Что играть?
+    descr: Параметр query пустой
+  
+  no_channel:
+    title: Где я...
+    descr: Сначала добавь меня в голосовой канал!
+  
+  no_user_channel:
+    title: А куда?
+    descr: Сначала зайди в голосовой канал!
+
+  already_playing: Какой-то трек уже играет!
+
+  queue_empty:
+    title: Ничего нет!
+    descr: "Моя очередь пуста :<"
+  
+  success:
+    title: Добавила!
+
+    track:
+      uri: "В очереди трек: [`{author} - {title}`](<{uri}>)"
+      no_uri: "В очереди трек: `{author} - {title}`"
+
+    playlist: "Добавила плейлист: `{name}`"
+  
+  no_results:
+    title: Ничего нет!
+    descr: Я не нашла ничего по твоему запросу :<
