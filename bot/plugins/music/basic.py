@@ -61,7 +61,8 @@ async def _join(ctx: crescent.Context) -> t.Optional[hikari.Snowflake]:
 @plugin.include
 @bot.groups.music.child
 @crescent.command(
-    name="join"
+    name="join",
+    description="Подключить мису к каналу"
 )
 class Join:
     channel = crescent.option(
@@ -92,7 +93,8 @@ class Join:
 @plugin.include
 @bot.groups.music.child
 @crescent.command(
-    name="leave"
+    name="leave",
+    description="Удалить мису из канала"
 )
 async def leave(ctx: crescent.Context) -> None:
 
@@ -120,7 +122,8 @@ async def leave(ctx: crescent.Context) -> None:
 @plugin.include
 @bot.groups.music.child
 @crescent.command(
-    name="play"
+    name="play",
+    description="Добавить трек в очередь или начать воспроизведение"
 )
 class Play:
     query = crescent.option(
@@ -327,7 +330,9 @@ async def play_cb(ctx: crescent.Context, query: str, user) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Пропустить трек"
+)
 async def skip(ctx: crescent.Context) -> None:
     """Skip the currently playing song"""
     if not ctx.guild_id:
@@ -371,7 +376,9 @@ async def skip(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Остановить музыку"
+)
 async def stop(ctx: crescent.Context) -> None:
     """Stop the currently playing song"""
     if not ctx.guild_id:

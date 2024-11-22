@@ -12,7 +12,9 @@ plugin = crescent.Plugin[hikari.GatewayBot, bot.Model]()
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Поставить музыку на паузу"
+)
 async def pause(ctx: crescent.Context) -> None:
     """Pause the currently playing song"""
     if not ctx.guild_id:
@@ -56,7 +58,9 @@ async def pause(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Продолжить вопросизведение музыки"
+)
 async def resume(ctx: crescent.Context) -> None:
     """Resume the currently playing song"""
     if not ctx.guild_id:
@@ -100,7 +104,9 @@ async def resume(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Показать очередь воспроизведения"
+)
 async def queue(ctx: crescent.Context) -> None:
     """List the current queue"""
     if not ctx.guild_id:
@@ -159,7 +165,10 @@ async def queue(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command(name="remove")
+@crescent.command(
+    name="remove",
+    description="Убрать трек из очереди"
+)
 class Remove:
     index = crescent.option(int)
 
@@ -211,7 +220,9 @@ class Remove:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Удалить все треки из очереди"
+)
 async def clear(ctx: crescent.Context) -> None:
     if not ctx.guild_id:
         return None
@@ -247,7 +258,9 @@ async def clear(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command()
+@crescent.command(
+    description="Перемешать треки в очереди"
+)
 async def shuffle(ctx: crescent.Context) -> None:
     if not ctx.guild_id:
         return None
@@ -278,7 +291,10 @@ async def shuffle(ctx: crescent.Context) -> None:
 
 @plugin.include
 @bot.groups.music.child
-@crescent.command(name='volume')
+@crescent.command(
+    name='volume',
+    description="Установить уровень громкости музыки"
+)
 class Volume:
     volume = crescent.option(int, min_value=1, max_value=200)
 

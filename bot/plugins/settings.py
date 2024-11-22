@@ -142,7 +142,10 @@ async def ac_option(
 
 @plugin.include
 @bot.groups.admin.child
-@crescent.command(name="config", description="Настройки бота")
+@crescent.command(
+    name="config",
+    description="Настройки бота"
+)
 class Settings:
     category = crescent.option(
         str, "Категория параметров", choices=[(x, x) for x in SETTINGS.keys()]
