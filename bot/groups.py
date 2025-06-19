@@ -23,12 +23,12 @@ __all__ = ["music", "admin"]
 
 music = crescent.Group(
     "music",
-    dm_enabled=False,
+    # dm_enabled=False,
     default_member_permissions=hikari.Permissions.CONNECT
 )
 
 admin = crescent.Group(
     "admin",
-    dm_enabled=False,
+    # dm_enabled=False,
     default_member_permissions=hikari.Permissions.MANAGE_GUILD
 )
