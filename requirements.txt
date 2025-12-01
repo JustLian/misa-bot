@@ -1,7 +1,0 @@
-hikari
-hikari-crescent
-hikari-miru
-python-dotenv
-motor
-lavalink_rs
-hikari-toolbox

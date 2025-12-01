@@ -1,0 +1,15 @@
+[project]
+name = "misa-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "hikari>=2.5.0",
+    "hikari-crescent>=1.4.0",
+    "hikari-miru>=4.2.0",
+    "hikari-toolbox>=0.1.7",
+    "lavalink-rs>=0.14.2",
+    "motor>=3.7.1",
+    "python-dotenv>=1.2.1",
+]
