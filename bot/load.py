@@ -33,8 +33,8 @@ class Embed(_Embed):
 settings = {
     "discord": {"token": os.environ["discord.token"]},
     "mongo": {
-        "password": os.environ["mongo.password"],
-        "username": os.environ["mongo.username"],
+        "password": os.environ.get("mongo.password", None),
+        "username": os.environ.get("mongo.username", None),
         "host": os.environ["mongo.host"],
         "port": os.environ["mongo.port"],
         "db": os.environ["mongo.db"],
